@@ -1,58 +1,36 @@
-/** 两个浮点数相加
- * @param {number} n1 浮点数1
- * @param {number} n2 浮点数2
- * @return {*}
+/** 浮点数计算
+ * @param {number[]} numbers  需要计算的浮点数数组
+ * @param {'add' | 'sub'} type  是加还是减
+ * @param {boolean} needFix 是否保留小数
+ * @return {number}
  */
-export function accAdd(n1: number, n2: number) {
-  var decimal_length_1, decimal_length_2, decimal_length_power;
-  try {
-    decimal_length_1 = n1.toString().split(".")[1].length;
-  } catch (e) {
-    decimal_length_1 = 0;
-  }
-  try {
-    decimal_length_2 = n2.toString().split(".")[1].length;
-  } catch (e) {
-    decimal_length_2 = 0;
-  }
-  decimal_length_power = Math.pow(
-    10,
-    Math.max(decimal_length_1, decimal_length_2)
-  );
-  // return (num1*decimal_length_power+num2*decimal_length_power)/decimal_length_power;
-  return (
-    Math.round(n1 * decimal_length_power + n2 * decimal_length_power) /
-    decimal_length_power
-  );
-}
-
-/** 两个浮点数相减
- * @param {number} num1 浮点数1
- * @param {number} num2 浮点数2
- * @param {boolean} needFix 是否需要四舍五入 toFixed
- * @return {*}
- */
-export function accSub(num1: number, num2: number, needFix: boolean = false) {
-  let decimal_length_1,
-    decimal_length_2,
-    decimal_length_max,
-    decimal_length_power;
-  try {
-    decimal_length_1 = num1.toString().split(".")[1].length;
-  } catch (e) {
-    decimal_length_1 = 0;
-  }
-  try {
-    decimal_length_2 = num2.toString().split(".")[1].length;
-  } catch (e) {
-    decimal_length_2 = 0;
-  }
-  decimal_length_max = Math.max(decimal_length_1, decimal_length_2);
-  decimal_length_power = Math.pow(10, decimal_length_max);
-  const result =
-    Math.round(num1 * decimal_length_power - num2 * decimal_length_power) /
-    decimal_length_power;
-  return needFix ? result.toFixed(decimal_length_max) : result;
+export function decimalCalc(
+  numbers: number[],
+  type?: "add" | "sub",
+  needFix?: boolean
+) {
+  let decimal_length_max = 0;
+  numbers.forEach((num) => {
+    let tmp;
+    try {
+      tmp = num.toString().split(".")[1].length;
+    } catch (e) {
+      tmp = 0;
+    }
+    decimal_length_max = Math.max(decimal_length_max, tmp);
+  });
+  const decimal_length_power = Math.pow(10, decimal_length_max);
+  let result = 0;
+  const flag = { add: 1, sub: -1 }[type || "add"];
+  numbers.forEach((num, inx) => {
+    if (inx === 0) {
+      result = num * decimal_length_power;
+    } else {
+      result = result + num * decimal_length_power * flag;
+    }
+  });
+  result = result / decimal_length_power;
+  return needFix ? +result.toFixed(decimal_length_max) : Math.round(result);
 }
 
 /** 标准化数值，使其不超出指定范围
@@ -73,7 +51,7 @@ export function standardNum(val: number, max?: number, min?: number) {
  * @param {string} flag 占位符，默认" "
  * @return {*}
  */
-export function validToString(data: any[], flag?: string) {
+function validToString(data: any[], flag?: string) {
   return data.filter((e) => !!e).join(flag || " ");
 }
 
@@ -158,3 +136,4 @@ export function getImageDataPos(can: HTMLCanvasElement, target: ImageData) {
     height: target.height,
   };
 }
+window.myFn = getImageDataPos;
